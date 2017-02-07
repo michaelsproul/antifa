@@ -1,0 +1,13 @@
+[package]
+name = "antifa"
+version = "0.1.0"
+authors = ["Michael Sproul <micsproul@gmail.com>"]
+
+[dependencies]
+sequence_trie = { git = "https://github.com/michaelsproul/rust_sequence_trie" }
+walkdir = { git = "https://github.com/michaelsproul/walkdir", branch = "post_order" }
+ring = "0.6.3"
+data-encoding = "1.1.2"
+
+[profile.release]
+debug = true
