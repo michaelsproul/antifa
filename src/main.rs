@@ -6,7 +6,7 @@ extern crate data_encoding;
 
 use sequence_trie::SequenceTrie;
 use std::path::{Path, Component};
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsString;
 use walkdir::WalkDir;
 use std::env;
 use data_encoding::hex;
@@ -27,7 +27,6 @@ fn main() {
         };
 
         let key = entry.path().components().map(|c| c.as_os_str());
-        let empty_key: Vec<&OsStr> = vec![]; // FIXME: get rid of this
 
         if entry.file_type().is_dir() {
             // Post-order visit, calculate the child count!
@@ -40,13 +39,13 @@ fn main() {
                     children.sort_by_key(|&(filename, _)| filename);
 
                     let digests = children.iter()
-                        .map(|&(_, node)| node.get(empty_key.clone()).unwrap())
+                        .map(|&(_, node)| node.value().unwrap())
                         .collect();
 
                     combine_digests(digests)
                 };
 
-                *subtrie.get_mut(empty_key.clone()).unwrap() = dir_hash;
+                *subtrie.value_mut().unwrap() = dir_hash;
             }
             // Pre-order visit, insert the directory with a dummy value.
             else {
