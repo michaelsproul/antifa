@@ -8,6 +8,14 @@ sequence_trie = { git = "https://github.com/michaelsproul/rust_sequence_trie" }
 walkdir = { git = "https://github.com/michaelsproul/walkdir", branch = "post_order" }
 ring = "0.6.3"
 data-encoding = "1.1.2"
+tokio-core = "0.1.4"
+tokio-file-unix = "0.2.0"
+futures = "0.1.10"
+env_logger = "0.4.1"
 
 [profile.release]
 debug = true
+
+#[replace]
+#"mio:0.6.4" = { path = "../mio" }
+#"tokio-core:0.1.4" = { path = "../tokio-core" }

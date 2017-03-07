@@ -5,7 +5,7 @@ extern crate sequence_trie;
 extern crate data_encoding;
 
 use sequence_trie::SequenceTrie;
-use std::path::{Path, Component};
+use std::path::{Path, PathBuf};
 use std::ffi::OsString;
 use walkdir::WalkDir;
 use std::env;
@@ -26,7 +26,11 @@ fn main() {
             Err(err) => { println!("{:?}", err); continue }
         };
 
-        let key = entry.path().components().map(|c| c.as_os_str());
+        let key = entry.path()
+            .strip_prefix(root_path)
+            .unwrap()
+            .components()
+            .map(|c| c.as_os_str());
 
         if entry.file_type().is_dir() {
             // Post-order visit, calculate the child count!
@@ -59,10 +63,8 @@ fn main() {
     }
 
     for (k, v) in trie.iter() {
-        println!("{:?}: {}", k, hex::encode(v.as_ref()).to_lowercase());
+        let mut path = PathBuf::new();
+        k.into_iter().map(|comp| path.push(comp)).last();
+        println!("{} :: {}", path.display(), hex::encode(v.as_ref()).to_lowercase());
     }
-
-    let root_key = root_path.components().map(Component::as_os_str);
-    let root_hash = trie.get(root_key).unwrap();
-    println!("Root hash: {}", hex::encode(root_hash.as_ref()).to_lowercase());
 }
