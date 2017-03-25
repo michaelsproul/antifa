@@ -10,7 +10,6 @@ use std::env;
 use futures::future::{self, Future, Loop};
 use tokio_file_unix::File;
 
-#[no_mangle]
 fn greatness() {
     env_logger::init().unwrap();
     let mut core = tokio_core::reactor::Core::new().unwrap();

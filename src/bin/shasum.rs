@@ -13,6 +13,6 @@ fn main() {
     let args = env::args().collect::<Vec<_>>();
     let filename = Path::new(&args[1]);
 
-    let digest = hash_file(filename).unwrap();
+    let digest = hash_file(filename.into()).unwrap();
     println!("{}", hex::encode(digest.as_ref()).to_lowercase());
 }

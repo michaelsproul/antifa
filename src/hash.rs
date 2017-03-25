@@ -4,7 +4,7 @@ use std::io::prelude::*;
 use std::fs::File;
 use ring::digest::{digest, Context, Digest, SHA256};
 
-const BUF_SIZE: usize = 512 * 1024;
+const BUF_SIZE: usize = 4096;
 
 pub fn dummy_digest() -> Digest {
     digest(&SHA256, &[])
@@ -13,10 +13,12 @@ pub fn dummy_digest() -> Digest {
 pub fn hash_file(path: &Path) -> io::Result<Digest> {
     let mut context = Context::new(&SHA256);
     let mut buffer = vec![0; BUF_SIZE];
-    let mut file = File::open(path)?;
+    let file = File::open(path)?;
+    //let mut reader = BufReader::new(file);
+    let mut reader = file;
 
     loop {
-        let bytes_read = file.read(&mut buffer)?;
+        let bytes_read = reader.read(&mut buffer)?;
 
         if bytes_read == 0 {
             break;

@@ -20,7 +20,7 @@ use tokio_file_unix::File;
 use walkdir::{WalkDir, DirEntry};
 use sequence_trie::SequenceTrie;
 
-const BUF_SIZE: usize = 512 * 1024;
+const BUF_SIZE: usize = 4096;
 const MAX_OPEN_FILES: usize = 5;
 
 struct DirectoryStream {
@@ -67,14 +67,13 @@ fn main() {
         open_file_count: open_file_count.clone()
     };
 
-    let trie: SequenceTrie<OsString, Digest> = SequenceTrie::new();
-    let trie = Rc::new(RefCell::new(trie));
+    //let trie: SequenceTrie<OsString, Digest> = SequenceTrie::new();
+    //let trie = Rc::new(RefCell::new(trie));
 
     core.run(dir_stream
     .filter(|dir_entry| dir_entry.file_type().is_file())
     .filter(|dir_entry| dir_entry.metadata().map(|m| m.len() > 0).unwrap_or(false))
     .for_each(|dir_entry| {
-        let new_trie = trie.clone();
         //println!("Doing stuff!");
         *open_file_count.borrow_mut() += 1;
 
@@ -91,14 +90,14 @@ fn main() {
             .map(|c| c.as_os_str().into()).collect();
 
         future::loop_fn(init, |(f, buf, mut ctxt)| {
-            let new_trie = new_trie.clone();
             tokio_core::io::read(f, buf).map(|(f, buf, bytes_read)| {
                 if bytes_read == 0 {
                     *open_file_count.borrow_mut() -= 1;
 
                     let digest = ctxt.finish();
 
-                    new_trie.borrow_mut().insert_owned(key, digest);
+                    //new_trie.borrow_mut().insert_owned(key, digest);
+                    println!("{:?}", digest);
                     return Loop::Break(());
                 }
                 ctxt.update(&buf[..bytes_read]);
