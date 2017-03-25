@@ -2,13 +2,9 @@ use std::path::Path;
 use std::io;
 use std::io::prelude::*;
 use std::fs::File;
-use ring::digest::{digest, Context, Digest, SHA256};
+use ring::digest::{Context, Digest, SHA256};
 
-const BUF_SIZE: usize = 512 * 1024;
-
-pub fn dummy_digest() -> Digest {
-    digest(&SHA256, &[])
-}
+const BUF_SIZE: usize = 4096;
 
 pub fn hash_file(path: &Path) -> io::Result<Digest> {
     let mut context = Context::new(&SHA256);
@@ -29,6 +25,7 @@ pub fn hash_file(path: &Path) -> io::Result<Digest> {
 }
 
 /// Combine digests by hashing them together, like in a Merkle tree.
+/// FIXME: not secure currently due to conflation of internal nodes + leaf nodes.
 pub fn combine_digests(digests: Vec<&Digest>) -> Digest {
     let mut context = Context::new(&SHA256);
 
