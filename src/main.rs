@@ -1,6 +1,7 @@
 extern crate ring;
 extern crate antifa;
 extern crate walkdir;
+extern crate itertools;
 extern crate sequence_trie;
 extern crate futures;
 extern crate futures_cpupool;
@@ -11,7 +12,7 @@ use std::ffi::OsString;
 use walkdir::WalkDir;
 use std::env;
 use ring::digest::Digest;
-
+use itertools::Itertools;
 use futures::{future, Future};
 use futures_cpupool::CpuPool;
 
@@ -58,11 +59,18 @@ fn main() {
         if node.is_leaf() {
             None
         } else {
-            Some(combine_digests(node.children().into_iter().map(|c| c.value().unwrap()).collect()))
+            // FIXME: avoid allocations here :\
+            let sorted_child_digests = node.children_with_keys()
+                .into_iter()
+                .sorted_by(|&(k1, _), &(k2, _)| k1.cmp(k2))
+                .into_iter()
+                .map(|(_, child_node)| child_node.value().unwrap())
+                .collect();
+            Some(combine_digests(sorted_child_digests))
         }
     });
 
-    for (k, v) in trie.iter() {
+    for (k, v) in trie.iter().sorted_by(|&(ref k1, _), &(ref k2, _)| k1.cmp(k2)) {
         println!("{:?}: {:?}", k, v);
     }
 }
