@@ -59,10 +59,7 @@ fn main() {
         if node.is_leaf() {
             None
         } else {
-            // FIXME: avoid allocations here :\
             let sorted_child_digests = node.children_with_keys()
-                .into_iter()
-                .sorted_by(|&(k1, _), &(k2, _)| k1.cmp(k2))
                 .into_iter()
                 .map(|(_, child_node)| child_node.value().unwrap())
                 .collect();
